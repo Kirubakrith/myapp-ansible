@@ -1,18 +1,23 @@
 ---
 - hosts: webservers 
-  become: True
+  remote_user: ubuntu
+  become: yes
   tasks:
-    - name: Install packages
-      yum:
-        name: "httpd"
-        state: "present"
-    - name: Start Apache server
-      service:
-        name: httpd
-        state: started
-        enabled: True
-    - name: Deploy static website
-      copy:
-        src: index.html
-        dest: /var/www/html/
+  - name: Install OpenJDK
+    apt:
+      name: openjdk-11-jre-headless
+
+  - name: download tomcat server packages
+    get_url:
+      url: http://mirrors.estointernet.in/apache/tomcat/tomcat-9/v9.0.56/bin/apache-tomcat-9.0.56.tar.gz
+      dest: /usr/local
+
+  - name: extract tomcat packages
+    unarchive:
+      src: /usr/local/apache-tomcat-9.0.56.tar.gz
+      dest: /usr/local
+      remote_src: yes
+
+  - name: start tomcat services
+    shell: nohup /usr/local/apache-tomcat-9.0.56/bin/startup.sh
 ...
